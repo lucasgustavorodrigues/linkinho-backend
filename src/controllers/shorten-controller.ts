@@ -1,10 +1,17 @@
 import type { HttpRequest, HttpResponse } from '../types/http';
-import { created } from '../utils/http';
+import { badRequest, created } from '../utils/http';
+import { shortenSchema } from '../validators/shorten-schema';
 
 export class ShortenController {
-	static async handle(request: HttpRequest): Promise<HttpResponse> {
+	static async handle({ body }: HttpRequest): Promise<HttpResponse> {
+		const { success, data, error } = shortenSchema.safeParse(body);
+
+		if (!success) {
+			return badRequest({ errors: error?.issues });
+		}
+
 		return created({
-			shortUrl: 'https://example.com/shortened',
+			shortUrl: data,
 		});
 	}
 }

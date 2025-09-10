@@ -1,0 +1,32 @@
+org: lucasgustavor
+service: linkinho-backend
+frameworkVersion: "4"
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs22.x
+  architecture: arm64
+
+package:
+  individually: true
+
+build:
+  esbuild:
+    minify: true
+    sourcemap: false
+
+functions:
+  shorten:
+    handler: src/functions/shorten.handler
+    events:
+      - httpApi:
+          path: /shorten
+          method: POST
+
+  redirect:
+    handler: src/functions/redirect.handler
+    events:
+      - httpApi:
+          path: /{shortUrl}
+          method: GET

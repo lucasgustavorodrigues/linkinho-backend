@@ -2,6 +2,9 @@ org: lucasgustavor
 service: linkinho-backend
 frameworkVersion: "4"
 
+plugins:
+  - serverless-offline
+
 provider:
   name: aws
   region: us-east-1

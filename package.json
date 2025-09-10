@@ -1,23 +1,24 @@
 {
-  "name": "linkinho-backend",
-  "version": "1.0.0",
-  "description": "Modern link shortener with an intuitive UI and scalable backend.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "shortener",
-    "url",
-    "link",
-    "short"
-  ],
-  "author": "Lucas Gustavo Rodrigues",
-  "license": "ISC",
-  "packageManager": "pnpm@10.15.1",
-  "devDependencies": {
-    "@types/aws-lambda": "^8.10.152",
-    "tsx": "^4.20.5",
-    "typescript": "^5.9.2"
-  }
+	"name": "linkinho-backend",
+	"version": "1.0.0",
+	"description": "Modern and intuitive URL shortener built with AWS Lambda and Serverless Framework.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"shortener",
+		"url",
+		"link",
+		"short"
+	],
+	"author": "Lucas Gustavo Rodrigues",
+	"license": "ISC",
+	"packageManager": "pnpm@10.15.1",
+	"devDependencies": {
+		"@biomejs/biome": "2.2.4",
+		"@types/aws-lambda": "^8.10.152",
+		"tsx": "^4.20.5",
+		"typescript": "^5.9.2"
+	}
 }

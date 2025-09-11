@@ -1,8 +1,9 @@
-import type { HttpResponse } from '../types/http';
+import type { HttpResponse } from "../types/http";
 
-export function parseResponse({ statusCode, body }: HttpResponse) {
-	return {
-		statusCode,
-		body: body ? JSON.stringify(body) : undefined,
-	};
+export function parseResponse({ statusCode, body, headers }: HttpResponse) {
+  return {
+    statusCode,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  };
 }

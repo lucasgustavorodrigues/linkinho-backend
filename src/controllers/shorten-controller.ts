@@ -1,6 +1,6 @@
-import type { HttpRequest, HttpResponse } from '../types/http';
-import { badRequest, created } from '../utils/http';
-import { shortenSchema } from '../validators/shorten-schema';
+import type { HttpRequest, HttpResponse } from "../types/http";
+import { badRequest, created } from "../utils/http";
+import { shortenSchema } from "../validators/shorten-schema";
 
 export class ShortenController {
 	static async handle({ body }: HttpRequest): Promise<HttpResponse> {

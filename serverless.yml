@@ -24,7 +24,7 @@ functions:
     handler: src/functions/shorten.handler
     events:
       - httpApi:
-          path: /shorten
+          path: /api/shorten
           method: POST
 
   redirect:

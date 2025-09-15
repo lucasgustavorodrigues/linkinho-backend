@@ -5,9 +5,9 @@
 	"main": "index.js",
 	"scripts": {
 		"dev": "sls offline start --reloadHandler",
-		"test": "vitest",
+		"test": "vitest src/",
 		"test:ui": "vitest --ui",
-		"test:coverage": "vitest --coverage"
+		"test:coverage": "vitest src/ --coverage"
 	},
 	"keywords": [
 		"shortener",

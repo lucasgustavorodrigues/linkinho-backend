@@ -1,5 +1,6 @@
+import { UrlService } from "../services/url-service";
 import type { HttpRequest, HttpResponse } from "../types/http";
-import { badRequest, notFound, ok, redirect } from "../utils/http";
+import { badRequest, internalServerError, notFound, redirect } from "../utils/http";
 import { shortUrlSchema } from "../validators/redirect-schema";
 
 export class RedirectController {
@@ -10,10 +11,21 @@ export class RedirectController {
 			return badRequest({ errors: error?.issues });
 		}
 
-		if (data.shortUrl !== "Yu5fA") {
-			return notFound({ message: "Link not found" });
-		}
+		const { shortUrl } = data;
 
-		return redirect("https://www.github.com/lucasgustavorodrigues", true);
+		try {
+			const urlRecord = await UrlService.getUrlByShortCode(shortUrl);
+
+			if (!urlRecord) {
+				return notFound({ message: "Link not found" });
+			}
+
+			UrlService.incrementClickCount(shortUrl).catch(console.error);
+
+			return redirect(urlRecord.originalUrl, true);
+		} catch (error: unknown) {
+			console.error("Error redirecting URL:", error);
+			return internalServerError({ message: "Internal server error" });
+		}
 	}
 }

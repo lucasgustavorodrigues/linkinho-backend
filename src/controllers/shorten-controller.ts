@@ -1,5 +1,7 @@
+import { UrlService } from "../services/url-service";
 import type { HttpRequest, HttpResponse } from "../types/http";
-import { badRequest, created } from "../utils/http";
+import { badRequest, conflict, created, internalServerError } from "../utils/http";
+import { generateShortCode } from "../utils/url-utils";
 import { shortenSchema } from "../validators/shorten-schema";
 
 export class ShortenController {
@@ -10,8 +12,37 @@ export class ShortenController {
 			return badRequest({ errors: error?.issues });
 		}
 
-		return created({
-			shortUrl: data,
-		});
+		const { longUrl } = data;
+
+		try {
+			let shortCode: string;
+			let attempts = 0;
+			const maxAttempts = 5;
+
+			do {
+				shortCode = generateShortCode(6);
+				attempts++;
+
+				if (attempts > maxAttempts) {
+					return internalServerError({ message: "Unable to generate unique short code" });
+				}
+			} while (await UrlService.shortCodeExists(shortCode));
+
+			const urlRecord = await UrlService.createShortUrl(shortCode, longUrl);
+
+			return created({
+				shortCode: urlRecord.shortCode,
+				shortUrl: `https://linkinho.link/${urlRecord.shortCode}`,
+				originalUrl: urlRecord.originalUrl,
+				createdAt: urlRecord.createdAt,
+			});
+		} catch (error: unknown) {
+			if (error instanceof Error && error.message === "Short code already exists") {
+				return conflict({ message: "Short code already exists, please try again" });
+			}
+
+			console.error("Error creating short URL:", error);
+			return internalServerError({ message: "Internal server error" });
+		}
 	}
 }

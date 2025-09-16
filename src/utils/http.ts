@@ -36,6 +36,20 @@ export function notFound(body?: Record<string, any>): HttpResponse {
 	};
 }
 
+export function conflict(body?: Record<string, any>): HttpResponse {
+	return {
+		statusCode: 409,
+		body,
+	};
+}
+
+export function internalServerError(body?: Record<string, any>): HttpResponse {
+	return {
+		statusCode: 500,
+		body,
+	};
+}
+
 export function redirect(location: string, permanent = false): HttpResponse {
 	return {
 		statusCode: permanent ? 301 : 302,

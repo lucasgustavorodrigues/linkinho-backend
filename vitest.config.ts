@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    setupFiles: ['./src/test-setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -12,7 +13,8 @@ export default defineConfig({
         'node_modules/',
         'src/types/',
         '**/*.d.ts',
-        '.serverless/'
+        '.serverless/',
+        'src/test-setup.ts'
       ],
       thresholds: {
         global: { branches: 80, functions: 80, lines: 80, statements: 80 }

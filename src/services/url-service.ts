@@ -6,7 +6,7 @@ export interface UrlRecord {
 	originalUrl: string;
 	createdAt: string;
 	clickCount: number;
-	ttl?: number; // Time to live (opcional para expiração automática)
+	ttl?: number;
 }
 
 export class UrlService {
@@ -18,7 +18,6 @@ export class UrlService {
 			originalUrl,
 			createdAt: now,
 			clickCount: 0,
-			// TTL opcional: expira em 1 ano (timestamp Unix)
 			// ttl: Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60)
 		};
 

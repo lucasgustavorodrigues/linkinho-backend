@@ -1,19 +1,16 @@
 services:
-  localstack:
-    container_name: linkinho-localstack
-    image: localstack/localstack:latest
+  dynamodb-local:
+    container_name: linkinho-dynamodb-local
+    image: amazon/dynamodb-local:latest
     ports:
-      - "4566:4566"
-      - "4510-4559:4510-4559"
-    environment:
-      - SERVICES=dynamodb
-      - DEBUG=1
-      - DATA_DIR=/tmp/localstack/data
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - HOST_TMP_FOLDER=${PWD}/.localstack
+      - "8000:8000"
+    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "./data"]
     volumes:
-      - "${PWD}/.localstack:/var/lib/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./dynamodb-data:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+    user: "1000:1000"  
+    environment:
+      - JAVA_OPTS=-Xmx256m
     networks:
       - linkinho-network
 

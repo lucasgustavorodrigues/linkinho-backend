@@ -1,11 +1,9 @@
 node_modules/
 dist/
 .env
-.localstack
-.dynamodb
+dynamodb-data/
 .env.local
 .serverless/
-.localstack/
 coverage/
 .DS_Store
 Thumbs.db

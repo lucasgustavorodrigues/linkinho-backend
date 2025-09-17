@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Configurações
-ENDPOINT_URL="http://localhost:4566"
+ENDPOINT_URL="http://localhost:8000"
 REGION="us-east-1"
 TABLE_NAME="linkinho-backend-urls-dev"
 
-echo "Aguardando LocalStack..."
-sleep 10
+echo "Aguardando DynamoDB Local..."
+sleep 5
 
-echo "LocalStack está pronto! Criando tabela DynamoDB..."
+echo "DynamoDB Local está pronto! Criando tabela DynamoDB..."
 
 # Criar tabela DynamoDB com sintaxe correta
 aws dynamodb create-table \

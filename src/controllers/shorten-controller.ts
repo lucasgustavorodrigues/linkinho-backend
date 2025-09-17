@@ -15,14 +15,12 @@ export class ShortenController {
 		const { longUrl } = data;
 
 		try {
-			// ✅ Estratégia otimizada: tentar criar diretamente
-			const maxAttempts = 3; // Reduzido de 5 para 3
+			const maxAttempts = 3;
 
 			for (let attempt = 1; attempt <= maxAttempts; attempt++) {
 				const shortCode = generateShortCode(6);
 
 				try {
-					// ✅ Tentar criar diretamente (mais rápido que verificar + criar)
 					const urlRecord = await UrlService.createShortUrl(shortCode, longUrl);
 
 					return created({
@@ -32,17 +30,14 @@ export class ShortenController {
 						createdAt: urlRecord.createdAt,
 					});
 				} catch (error: unknown) {
-					// Se código já existe, tenta novamente
 					if (error instanceof Error && error.message === "Short code already exists") {
 						if (attempt === maxAttempts) {
 							return internalServerError({
 								message: "Unable to generate unique short code after multiple attempts",
 							});
 						}
-						continue; // Tenta próximo código
+						continue;
 					}
-
-					// Outros erros, falha imediatamente
 					throw error;
 				}
 			}

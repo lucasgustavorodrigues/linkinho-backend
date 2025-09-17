@@ -1,19 +1,25 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { UrlService } from "../services/url-service";
 import type { HttpRequest } from "../types/http";
 import { ShortenController } from "./shorten-controller";
 
-// Mock do UrlService
 vi.mock("../services/url-service", () => ({
 	UrlService: {
-		shortCodeExists: vi.fn(),
 		createShortUrl: vi.fn(),
 	},
 }));
 
 describe("Shorten Controller", () => {
+	const originalConsoleError = console.error;
+
 	beforeEach(() => {
 		vi.clearAllMocks();
+		// Silenciar console.error durante os testes
+		console.error = vi.fn();
+	});
+
+	afterEach(() => {
+		console.error = originalConsoleError;
 	});
 
 	it("should return badRequest (400) if the body property name is incorrect", async () => {
@@ -43,7 +49,6 @@ describe("Shorten Controller", () => {
 	});
 
 	it("should return 201 for valid URL with https protocol", async () => {
-		vi.mocked(UrlService.shortCodeExists).mockResolvedValue(false);
 		vi.mocked(UrlService.createShortUrl).mockResolvedValue({
 			shortCode: "ABC123",
 			originalUrl: "https://www.google.com",
@@ -67,8 +72,6 @@ describe("Shorten Controller", () => {
 	});
 
 	it("should return 201 for valid URL without protocol (should be normalized)", async () => {
-		// Mock das funções do UrlService
-		vi.mocked(UrlService.shortCodeExists).mockResolvedValue(false);
 		vi.mocked(UrlService.createShortUrl).mockResolvedValue({
 			shortCode: "DEF456",
 			originalUrl: "https://www.instagram.com/user",
@@ -101,16 +104,14 @@ describe("Shorten Controller", () => {
 	});
 
 	it("should retry generating short code if collision occurs", async () => {
-		// Nesse caso eu testo um codigo existente e logo depois
-		// um codigo inexistente.
-		vi.mocked(UrlService.shortCodeExists).mockResolvedValueOnce(true).mockResolvedValueOnce(false);
-
-		vi.mocked(UrlService.createShortUrl).mockResolvedValue({
-			shortCode: "GHI789",
-			originalUrl: "https://example.com",
-			createdAt: "2023-01-01T00:00:00.000Z",
-			clickCount: 0,
-		});
+		vi.mocked(UrlService.createShortUrl)
+			.mockRejectedValueOnce(new Error("Short code already exists"))
+			.mockResolvedValueOnce({
+				shortCode: "GHI789",
+				originalUrl: "https://example.com",
+				createdAt: "2023-01-01T00:00:00.000Z",
+				clickCount: 0,
+			});
 
 		const request: HttpRequest = {
 			body: { longUrl: "https://example.com" },
@@ -121,11 +122,10 @@ describe("Shorten Controller", () => {
 		const response = await ShortenController.handle(request);
 
 		expect(response.statusCode).toBe(201);
-		expect(UrlService.shortCodeExists).toHaveBeenCalledTimes(2);
+		expect(UrlService.createShortUrl).toHaveBeenCalledTimes(2);
 	});
 
-	it("should return 409 if short code already exists during creation", async () => {
-		vi.mocked(UrlService.shortCodeExists).mockResolvedValue(false);
+	it("should return 500 if short code already exists during creation after max attempts", async () => {
 		vi.mocked(UrlService.createShortUrl).mockRejectedValue(new Error("Short code already exists"));
 
 		const request: HttpRequest = {
@@ -136,12 +136,13 @@ describe("Shorten Controller", () => {
 
 		const response = await ShortenController.handle(request);
 
-		expect(response.statusCode).toBe(409);
-		expect(response.body).toHaveProperty("message", "Short code already exists, please try again");
+		expect(response.statusCode).toBe(500);
+		expect(response.body).toHaveProperty("message", "Unable to generate unique short code after multiple attempts");
+		expect(UrlService.createShortUrl).toHaveBeenCalledTimes(3);
 	});
 
-	it("should return 500 if unable to generate unique short code after max attempts", async () => {
-		vi.mocked(UrlService.shortCodeExists).mockResolvedValue(true);
+	it("should return 500 for other database errors", async () => {
+		vi.mocked(UrlService.createShortUrl).mockRejectedValue(new Error("Database connection failed"));
 
 		const request: HttpRequest = {
 			body: { longUrl: "https://example.com" },
@@ -152,7 +153,9 @@ describe("Shorten Controller", () => {
 		const response = await ShortenController.handle(request);
 
 		expect(response.statusCode).toBe(500);
-		expect(response.body).toHaveProperty("message");
-		expect(response.body).toHaveProperty("message", "Unable to generate unique short code");
+		expect(response.body).toHaveProperty("message", "Internal server error");
+		expect(UrlService.createShortUrl).toHaveBeenCalledTimes(1);
+
+		expect(console.error).toHaveBeenCalledWith("Error creating short URL:", expect.any(Error));
 	});
 });

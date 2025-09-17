@@ -7,7 +7,7 @@ TABLE_NAME="linkinho-backend-urls-dev"
 echo "🔍 Visualizando dados do DynamoDB Local..."
 echo "================================================"
 
-echo "📊 Contagem de itens:"
+echo "===== Contagem de itens ====="
 aws dynamodb scan \
     --table-name $TABLE_NAME \
     --select "COUNT" \
@@ -16,15 +16,8 @@ aws dynamodb scan \
     --output table
 
 echo ""
-echo "📋 Todos os itens (formatado):"
-aws dynamodb scan \
-    --table-name $TABLE_NAME \
-    --endpoint-url $ENDPOINT_URL \
-    --region $REGION \
-    --output table
 
-echo ""
-echo "🎯 Últimos 5 itens criados:"
+echo "===== Últimos 5 itens criados ====="
 aws dynamodb scan \
     --table-name $TABLE_NAME \
     --endpoint-url $ENDPOINT_URL \

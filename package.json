@@ -4,16 +4,13 @@
 	"description": "Modern and intuitive URL shortener built with AWS Lambda and Serverless Framework.",
 	"main": "index.js",
 	"scripts": {
-		"dev": "NODE_ENV=development sls offline start --reloadHandler",
-		"local:start": "docker-compose up -d",
-		"local:stop": "docker-compose down",
-		"local:setup": "./scripts/setup-dynamodb.sh",
-		"local:dev": "npm run local:start && sleep 5 && npm run local:setup && npm run dev",
-		"deploy": "dotenv -- sls deploy",
-		"deploy:prod": "dotenv -- sls deploy --stage prod",
+		"dev": "sls offline start --reloadHandler",
+		"deploy:dev": "dotenv -- sls deploy",
+		"deploy": "dotenv -- sls deploy --stage prod",
 		"test": "vitest src/",
 		"test:ui": "vitest --ui",
-		"test:coverage": "vitest src/ --coverage"
+		"test:coverage": "vitest src/ --coverage",
+		"dynamo:list": "./scripts/dynamo-view-data.sh"
 	},
 	"keywords": [
 		"shortener",

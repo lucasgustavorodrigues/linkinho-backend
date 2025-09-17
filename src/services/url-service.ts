@@ -81,12 +81,4 @@ export class UrlService {
 			throw error;
 		}
 	}
-
-	/**
-	 * Verifica se um código curto já existe
-	 */
-	static async shortCodeExists(shortCode: string): Promise<boolean> {
-		const url = await UrlService.getUrlByShortCode(shortCode);
-		return url !== null;
-	}
 }

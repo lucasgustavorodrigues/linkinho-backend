@@ -1,6 +1,6 @@
 import { UrlService } from "../services/url-service";
 import type { HttpRequest, HttpResponse } from "../types/http";
-import { badRequest, conflict, created, internalServerError } from "../utils/http";
+import { badRequest, created, internalServerError } from "../utils/http";
 import { generateShortCode } from "../utils/url-utils";
 import { shortenSchema } from "../validators/shorten-schema";
 
@@ -15,32 +15,40 @@ export class ShortenController {
 		const { longUrl } = data;
 
 		try {
-			let shortCode: string;
-			let attempts = 0;
-			const maxAttempts = 5;
+			// ✅ Estratégia otimizada: tentar criar diretamente
+			const maxAttempts = 3; // Reduzido de 5 para 3
 
-			do {
-				shortCode = generateShortCode(6);
-				attempts++;
+			for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+				const shortCode = generateShortCode(6);
 
-				if (attempts > maxAttempts) {
-					return internalServerError({ message: "Unable to generate unique short code" });
+				try {
+					// ✅ Tentar criar diretamente (mais rápido que verificar + criar)
+					const urlRecord = await UrlService.createShortUrl(shortCode, longUrl);
+
+					return created({
+						shortCode: urlRecord.shortCode,
+						shortUrl: `https://linkinho.link/${urlRecord.shortCode}`,
+						originalUrl: urlRecord.originalUrl,
+						createdAt: urlRecord.createdAt,
+					});
+				} catch (error: unknown) {
+					// Se código já existe, tenta novamente
+					if (error instanceof Error && error.message === "Short code already exists") {
+						if (attempt === maxAttempts) {
+							return internalServerError({
+								message: "Unable to generate unique short code after multiple attempts",
+							});
+						}
+						continue; // Tenta próximo código
+					}
+
+					// Outros erros, falha imediatamente
+					throw error;
 				}
-			} while (await UrlService.shortCodeExists(shortCode));
-
-			const urlRecord = await UrlService.createShortUrl(shortCode, longUrl);
-
-			return created({
-				shortCode: urlRecord.shortCode,
-				shortUrl: `https://linkinho.link/${urlRecord.shortCode}`,
-				originalUrl: urlRecord.originalUrl,
-				createdAt: urlRecord.createdAt,
-			});
-		} catch (error: unknown) {
-			if (error instanceof Error && error.message === "Short code already exists") {
-				return conflict({ message: "Short code already exists, please try again" });
 			}
 
+			return internalServerError({ message: "Unable to generate unique short code" });
+		} catch (error: unknown) {
 			console.error("Error creating short URL:", error);
 			return internalServerError({ message: "Internal server error" });
 		}

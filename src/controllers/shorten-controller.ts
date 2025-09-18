@@ -9,7 +9,7 @@ export class ShortenController {
 		const { success, data, error } = shortenSchema.safeParse(body);
 
 		if (!success) {
-			return badRequest({ errors: error?.issues });
+			return badRequest({ errors: error?.issues, code: error.issues[0].code });
 		}
 
 		const { longUrl } = data;

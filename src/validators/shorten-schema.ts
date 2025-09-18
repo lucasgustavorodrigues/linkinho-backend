@@ -1,7 +1,7 @@
 import z from "zod";
 import { isValidUrl, normalizeUrl } from "../utils/url-utils";
 
-const urlRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/;
+const urlRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:[0-9]+)?(\/.*)?$/;
 
 export const shortenSchema = z.object({
 	longUrl: z
